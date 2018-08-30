@@ -56,11 +56,86 @@ step3---测试前后台传递参数的方法以及显示
 		ParamAction.java
 		struts.xml	
 	
-step4---Convention插件的约定	struts2-convention-plugin-2.3.32.jar
-
-
+step4---Convention插件的约定    https://blog.csdn.net/qq_35326718/article/details/71056629	
+		struts2-convention-plugin-2.3.32.jar
+		1.Action的搜索和映射约定
+			之前我们自定义一个Action是需要在Struts.xml中通过action元素的name和class实现请求和响应映射，现在我们可以使用插件省去在struts.xml中配置的过程。我们的Convention插件会自动搜索所有位于action,actions,struts,struts2包下的Java类，遇到以下两种情况，就会把该Java类当做Action处理。
+				实现了com.opensymphony.xwork2.Action的Java类
+				类名类似于：xxxAction的Java类
+			对于以上两种情况，插件才能够自动识别这是一个Action，还有一点需要注意的是，该插件一般只会在上述提到的四个包中搜索Java类，如果想要使用这种约定，一般需要将Java类的包命名为以上四种之一。当然是可以通过配置修改这些默认搜索的包的，后文介绍。
+			以上介绍了如何利用约定让核心拦截器可以通过插件搜索到具体的Action，下面介绍如何让这些Action能够对应于具体的URL请求。我们知道在Java中，对于一个类的命名是依照驼峰式命名规范来的（每个单词的首字母大写，其余字符小写），所以插件在解析的时候会利用这个规范，例如下面的一些例子：
+				Action：MyInfo------------URL：my-info
+				Action：UserMessage-------URL：user-message
+			上述的这种方式定义的Action在解析成URL的时候，会拆分成一个一个的单词，单词之间使用中划线连接。连接之后的结果作为该Action对应的URL。
+			还有一种方式定义的Action，在定义Java类的时候命名以XXXAction的形式，也会被解析为一个Action。插件在解析它的时候就简单了，去掉后面的Action，剩下的就是该Action对应的URL。例如：
+				Action：MyAction------------URL：my
+				Action：UserAction----------URL：user
+			有关第一个约定还有一点需要注意下，以前我们配置Action的时候都是在package元素中配置的，也就是每个Action都会有一个namespace（没有显式指明的为默认命名空间下），那么我们这种约定式的配置如何区分具有相同名称的Action了呢？Convention插件通过该Action的包进行区分，例如：
+				my.action.LoginAction------URL：/login
+				my.actions.user.LoginAction----URL：/user/login
+				him.struts.name.LoginAction----URL：/name/login
+				her.struts2.age.LoginAction----URL：/age/login	
+			如上所示，Convention通过该Action的包来指定namespace的值。	
+				
+				
+		2.按约定映射结果
+			接下来我们看看第二个约定，按约定映射结果。默认情况下，Convention总会到WEB-INF/content路径下查找视图资源，也就是根据Action返回的字符串组装视图资源的逻辑 名称。例如：LoginAction返回的SUCCESS，插件会到content目录下找login-success.jsp或者login-success.html。这种组装的格式为：actionName-resultCode.suffix。
+			当然啊，这个目录是默认的，后面我们会介绍通过配置指定成我们想用的目录。下面我们通过具体的例子完整的感受下
+			
+						
+		3.Action链式约定
+			之前介绍过，可以通过指定result元素的type属性值为redirectAction来使得Action的返回结果继续指向另外一个Action，从而形成链式Action。那么我们如何约定链式Action呢？我们只要将第二个Action的Java类放在和第一个Action的Java类同目录，并依照约定命名第二个Action即可。第二个Action的命名规则如下：firstActionName+resultCode
 step5---struts2标签
-
+		基本控制标签：https://blog.csdn.net/qq_35326718/article/details/71215395
+			property获取属性标签
+			if/else/else if逻辑判断标签
+			iterator迭代标签
+			append组合集合标签
+			generator拆分字符串标签
+			merge组合集合标签（处理方式和append不一样）
+			subset获取子集合标签
+			sort排序标签
+		数据标签: https://blog.csdn.net/qq_35326718/article/details/71521985
+			action标签：用于在视图页面跳转到一个Action
+			bean标签：用于创建一个Javabean实例，按需保存到context中
+			date标签：用于格式化输出一个日期
+			debug标签：用于调试查看ognl上下文中内容
+			include标签：用于包含其他的jsp或者servlet页面资源
+			param标签：主要配合别的标签作为子标签使用
+			push标签：用于将某个值放入到root栈顶
+			set标签：设置一个新变量，放入指定范围
+			url标签：用于生成一个URL地址
+		ui标签：https://blog.csdn.net/q547550831/article/details/53326042
+			form标签：
+				form
+				submit
+				textfield
+				textarea
+				password
+				radio
+				checkboxlist
+				checkbox
+				select
+				hidden
+				reset
+				file
+			Non-form标签：生成HTML页面非表单元素
+			Ajax标签：提供ajax技术支持
+			
+	
+		Struts2的模板和主题
+	     Struts2的UI标签都是基于模板和主题的。所谓模板，就是一些代码，Struts2标签使用这些代码渲染生成相应的HTML代码。模板是一个UI标签的外在表现形式，并且每个标签都会有自己对应的模板。如果为所有的UI标签提供样式和视觉效果相似的模板， 那么这一系列的模板就形成了一个主题。
+	     Struts2 默认提供了4 种主题，分别为 simple、xhtml、css_xhtml和Ajax。
+		simple主题：这是最简单的主题，使用该主题时，每个UI标签只生成最基本的HTML元素，没有任何附加功能。
+		xhtml主题：这是Struts2的默认主题，它对simple主题进行了扩展，提供了布局功能、Label显示名称、以及与验证框架和 国际化框架的集成。
+		css_xhtml：该主题是xhtml的扩展，在对xhtml的基础之上添加对CSS的支持和控制。
+		Ajax：继承自对xhtml，提供 Ajax支持。	
+		这4种内建主题中，xhtml为默认主题，但xhtml有一定的局限性。因为它使用表格进行布局，并且只支持每一行放一个表单项，这样一来，一旦遇到复杂的页面布局，xhtml就难以胜任了。此时，就需要改变Struts2的默认主题。
+     	通常，通过设置常量struts.ui.theme，来改变默认主题，具体做法是在struts.xml或者struts.properties文件中增加相应的配置。比如想要设置使用simple的主题，那么需要在struts.xml中增加如下配置:
+     		<constant name="struts.ui.theme" value="simple"/>
+     	或者在struts.properties文件中增加如下配置:struts.ui.theme=simple
+				
+				
 step6---namespace
 
 step7---类型转换 自定义类型转换器
@@ -170,7 +245,7 @@ step9---文件上传下载
 			test-filedownload-start.jsp test-filedownload-end.jsp
 			TestDownloadAction.java 要定义一个方法，该方法会根据指定资源路径返回该文件的入口InputStream，交给浏览器。
 			
-			具体的action的配置：
+			具体的action的 配置：
 			<action name="testDownload" class="com.jinan.www.actions.TestDownloadAction">
 				<param name="inputPath">/WEB-INF/jsp/test-filedownload-end.jsp</param>
 				<result type="stream">

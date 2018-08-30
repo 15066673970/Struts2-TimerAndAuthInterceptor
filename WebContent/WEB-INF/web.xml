@@ -16,6 +16,7 @@
     </filter-mapping>
 
     <welcome-file-list>
+    	<welcome-file>struts2-form-tag.jsp</welcome-file>
     	<welcome-file>test-filedownload-start.jsp</welcome-file>
     	<welcome-file>test-fileupload-start.jsp</welcome-file>
     	<welcome-file>test-converter-start.jsp</welcome-file>
