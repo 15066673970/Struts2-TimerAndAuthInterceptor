@@ -150,6 +150,40 @@ setp8----数据校验
 				响应login处理逻辑的自定义校验方法命名为：validateLogin()
 				响应regist处理逻辑的自定义校验方法命名为：validateRegist()
 step9---文件上传下载
+		上传：
+			想要实现文件上传功能，页面的表单的method属性必须被指定为post，还有enctype属性必须为multipart/form-data，该值表示上传的内容将会以二进制的形式被上传到服务器
+			在Struts的文件上传中，它使用三个Action属性来描述被上传的文件。commons-fileupload-1.3.2.jar和commons-io-2.2.jar这两个包就是用于辅助表单上传的内容赋值到action属性中
+			test-fileupload-start.jsp test-fileupload-end.jsp
+			TestUploadAction.java
+			
+			总体上看来，实际上还是使用了三个action实例属性对上传文件相关信息的封装。
+			一个属性封装的是该上传文件的二进制内容，一个属性封装该文件的文件名称，一个属性封装的是该文件的文件类型。
+			实际上把控好这三个属性，基本可以完成对该上传文件的所有操作。
+		下载：
+			广义上的文件下载，其实可以使用a标签链接到对应的资源完成对资源的下载，但是在浏览器中使用这种方式会导致浏览器直接打开该资源文件而并不是弹出下载框指定下载位置。
+			Struts2下载机制通过配置result元素的type属性为stream来实现。在类型为stream的result元素中可以配置一些参数，主要有以下：
+				
+				contentType：指定被下载文件的文件类型
+				inputName：指定被下载文件的输入流入口
+				contentDisposition：制定下载文件的文件名
+				bufferSize：指定下载文件的缓冲大小
+			test-filedownload-start.jsp test-filedownload-end.jsp
+			TestDownloadAction.java 要定义一个方法，该方法会根据指定资源路径返回该文件的入口InputStream，交给浏览器。
+			
+			具体的action的配置：
+			<action name="testDownload" class="com.jinan.www.actions.TestDownloadAction">
+				<param name="inputPath">/WEB-INF/jsp/test-filedownload-end.jsp</param>
+				<result type="stream">
+					<param name="inputName">tarFile</param>
+					<param name="contentType">text/plain</param>
+					<param name="contentDisposition">attachment;filename="test-filedownload-end.jsp"</param>
+				</result>
+			</action>
+			第一个param元素为action中的属性inputPath动态赋值，该参数的值指定了将要被下载的文件资源位置，我们此处指定的web应用根目录下的一张图片
+			结果类型result，该元素的默认type属性为dispather表示分发的意思，而我们此处的stream表示流的意思，它将返回给浏览器一个InputStream（被下载文件的入口）。
+			其中它配置了inputName，该参数的值对应于action中getXXXX方法，当接受到请求的时候，框架会通过该参数匹配调用action中的getXXXX方法，该方法会根据指定资源路径返回该文件的入口InputStream，交给浏览器。
+			contentType参数指定了该文件的类型，和互联网MIME标准中的规定类型一致，例如：text/plain代表纯文本，text/xml表示XML，image/gif代表GIF图片，image/jpeg代表JPG图片等。
+			contentDisposition参数表示被下载文件在保存时候的文件名，它有两个属性值。第一个属性值可以是inline或者attachment，它指定浏览器是直接打开还是下载，filename指定了下载或者打开文件的名称。
 
 		
 	
