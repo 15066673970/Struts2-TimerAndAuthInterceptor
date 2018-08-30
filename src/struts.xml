@@ -71,8 +71,17 @@
 			<result name="input">/WEB-INF/jsp/input.jsp</result>
 		</action>
 		<!-- step8 end  -->
+    <!-- step7 start -->
+    	<action name="testActionConverter" class="com.jinan.www.actions.TestActionConverter">
+    		<result name="success">/WEB-INF/jsp/test-converter-end.jsp</result>
+    		<result name="input">/WEB-INF/jsp/input.jsp</result>
+    	</action>
+    	
+    	
+    	
+    <!-- step7 end -->
     </package>
-
+	
 
 	
     <!-- Add packages here -->

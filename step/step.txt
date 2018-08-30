@@ -64,7 +64,40 @@ step5---struts2标签
 step6---namespace
 
 step7---类型转换 自定义类型转换器
-		其实就是类似于使用domianModel形式从前台往后台传递参数的时候，需要在前台页面中使用name=user.username的形式传递参数的情况。
+		
+		类型转换使用的场景：类型转换就是指我们在客户端使用get/post或者action标签的转发到具体的action实例的时候，我们传入的参数可以自动的
+		转换成action实例的实例属性的值的一个过程
+		其实就是类似于使用domianModel形式从前台往后台传递参数的时候，需要在前台页面中使用name=user.username的形式传递参数的情况（这种使用场景）
+		
+		Struts2内默认转换器：Struts2中默认有一个类型转换器，可以帮助我们完成大部分的自动转换操作，其支持的从String类型转换的目标类型如下：
+			boolean和Boolean：字符串true会转换为布尔类型值true
+			char和Character：字符串转字符
+			int和Integer：字符串转整型类型
+			long和Long：字符串转长整型
+			float和Float：字符串转单精度浮点型
+			double和Double：字符串转双精度浮点型
+			Date：字符串转日期类型，需要字符串满足一定的格式
+			数组：多个input表单提交给同一个Action的属性，就会构成一个数组传入到该属性中
+			集合：和数组类似，需要指定了的类型，并且类型不能超出基本数据类型
+		对于我们在Action中声明的属性的类型，如果是以上的这些类型的话，那么从客户端提交的过来的字符串就可以默认使用该机制自动转换成对应的类型，完成自动赋值。
+			
+		基于OGNL的类型转换 （domianModel形式）本质还是调用struts的默认转换器
+			例子-集合：action里面：private List<Walker> list; setList，getList方法
+					jsp里面：	<s:textfield name="list[0].username" label="用户名"/>
+							<s:textfield name="list[0].age" label="年龄"/>
+			例子-map:action里面： private Map<String,Walker> map; getMap，setMap方法
+					jsp里面：	<s:textfield name="map['1'].username" label="用户名"/>
+        					<s:textfield name="map['1'].age" label="年龄"/>
+        					
+                       自定义类型转换器	继承TypeConverter接口并实现其中的唯一方法convertValue方法，该方法相当复杂，好在框架为我们提供了实现类DefaultTypeConterver
+               		  我们可以重写convertValue的任意一个重载来完成自定义类型转换器。	
+                   test-converter-start.jsp test-converter-end.jsp 
+                   TestActionConverter.java  【需要在里面以属性的方式注入提交页面的属性】
+                   PConvert.java 自定义类型转换器，extends DefaultTypeConverter类并重写对应参数的方法
+                   TestActionConverter-conversion.properties 【actionName名字-conversion.properties文件用来告诉web使用哪个类型转换器（内容：类型=转换器类的位置）】
+                   
+                   
+                       	
 		类型转换器：
 			局部范围类型的转换器，	actionName-conversion.properties 例如f：LoginAction-conversion.properties
 						内容：// 属性名=转换器类的位置
@@ -72,8 +105,10 @@ step7---类型转换 自定义类型转换器
 			全局范围内注册一个类型转换器，xwork-conversion.properties
 						内容：// 属性名=转换器类的位置
 							walker=MyPackage.WalkerConvert
-			使用注解注册一个类型转换器
+			使用注解注册一个类型转换器 (略)
+		
 		类型转换的错误处理 ：
+		
 			框架为我们在拦截器栈中注册了一个拦截器：convertionError，该拦截器专门用于拦截类型转换异常，
 			一旦该拦截器拦截到异常产生则会封装所有的异常信息到ActionContext中，然后跳转到input处理结果页面，
 			所以一般我们在为Action添加处理结果的时候会为其添加一个input页面
